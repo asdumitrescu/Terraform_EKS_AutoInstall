@@ -33,8 +33,8 @@ This repository provides a complete setup for deploying an Amazon EKS cluster wi
 ## Clone the Repository
 
 ```bash
-git clone https://github.com/asdumitrescu/Terraform_EKS_AutoInstall.git
-cd Terraform_EKS_AutoInstall
+git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
+cd YOUR_REPOSITORY
 ```
 
 ---
@@ -150,3 +150,48 @@ terraform destroy -auto-approve
 ```
 
 This will delete all resources created by the Terraform configuration, including the VPC, EKS cluster, node groups, and IAM roles.
+
+
+---
+
+## Optional: Install ArgoCD in EKS Cluster
+
+To install and configure ArgoCD in the EKS cluster, follow these steps:
+
+1. **Create a separate namespace for ArgoCD**:
+    ```bash
+    kubectl create namespace argocd
+    ```
+
+2. **Install ArgoCD**:
+    ```bash
+    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    ```
+
+3. **Expose the ArgoCD service to the outside**:
+    ```bash
+    kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+    ```
+
+4. **Get the ArgoCD web URL for login**:
+    ```bash
+    kubectl get svc argocd-server -n argocd | awk '{print $4}'
+    ```
+
+5. **Get the name of the ArgoCD server pod**:
+    ```bash
+    kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2
+    ```
+
+6. **Log in to ArgoCD with the CLI**:
+    ```bash
+    argocd login "WEB_URL_THAT_GOT_EARLIER" --insecure
+    ```
+
+    Use the web URL obtained in step 4 as the login address.
+
+7. **Log in to the ArgoCD UI**:
+    - **Username**: `admin`
+    - **Password**: The pod name obtained in step 5.
+
+These steps will set up ArgoCD on your EKS cluster and allow access through both the web UI and the CLI.
