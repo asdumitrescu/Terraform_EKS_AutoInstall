@@ -33,8 +33,8 @@ This repository provides a complete setup for deploying an Amazon EKS cluster wi
 ## Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-cd YOUR_REPOSITORY
+git clone https://github.com/asdumitrescu/Terraform_EKS_AutoInstall.git
+cd Terraform_EKS_AutoInstall
 ```
 
 ---
