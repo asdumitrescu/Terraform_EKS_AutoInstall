@@ -185,8 +185,9 @@ These steps will set up ArgoCD on your EKS cluster and allow access through both
 ---
 
 ## Cleanup
-
-Before detroying you have to remove the load balancer of ArgoCD
+In case you applied ArgoCD into your cluster,
+before detroying the infrastructure created earlier
+you have to remove the load balancer of ArgoCD using the following command
 ```bash
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "ClusterIP"}}'
 ```
