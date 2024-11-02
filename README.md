@@ -193,7 +193,7 @@ To install and configure ArgoCD in the EKS cluster, follow these steps:
 
 7. **Log in to ArgoCD CLI**:
 ```bash
-argocd login <load_balancer_dns_name_received_in_step_3> --username admin --password <password_obtained_in_step_3> --insecure
+argocd login <load_balancer_dns_name_received_in_step_4> --username admin --password <password_obtained_in_step_5> --insecure
 ```
 
 These steps will set up ArgoCD on your EKS cluster and allow access through both the web UI and the CLI.
