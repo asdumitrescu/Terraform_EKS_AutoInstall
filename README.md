@@ -141,19 +141,6 @@ The trust policy (`trust-policy.json`) is automatically generated with the corre
 
 ---
 
-## Cleanup
-
-To remove all deployed resources, run the following command:
-
-```bash
-terraform destroy -auto-approve
-```
-
-This will delete all resources created by the Terraform configuration, including the VPC, EKS cluster, node groups, and IAM roles.
-
-
----
-
 ## Optional: Install ArgoCD in EKS Cluster
 
 To install and configure ArgoCD in the EKS cluster, follow these steps:
@@ -195,3 +182,17 @@ To install and configure ArgoCD in the EKS cluster, follow these steps:
     - **Password**: The pod name obtained in step 5.
 
 These steps will set up ArgoCD on your EKS cluster and allow access through both the web UI and the CLI.
+---
+
+## Cleanup
+
+To remove all deployed resources, run the following command:
+
+```bash
+terraform destroy -auto-approve
+```
+
+This will delete all resources created by the Terraform configuration, including the VPC, EKS cluster, node groups, and IAM roles.
+
+
+---
