@@ -33,8 +33,8 @@ This repository provides a complete setup for deploying an Amazon EKS cluster wi
 ## Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-cd YOUR_REPOSITORY
+git clone https://github.com/asdumitrescu/Terraform_EKS_AutoInstall.git
+cd Terraform_EKS_AutoInstall
 ```
 
 ---
@@ -187,7 +187,7 @@ These steps will set up ArgoCD on your EKS cluster and allow access through both
 ## Cleanup
 In case you applied ArgoCD into your cluster,
 before detroying the infrastructure created earlier
-you have to remove the load balancer of ArgoCD using the following command
+you have to remove the load balancer of ArgoCD using the following command:
 ```bash
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "ClusterIP"}}'
 ```
