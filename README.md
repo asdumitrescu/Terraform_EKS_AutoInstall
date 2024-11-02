@@ -27,6 +27,9 @@ This repository provides a complete setup for deploying an Amazon EKS cluster wi
 - **Terraform**: Install [Terraform](https://www.terraform.io/downloads.html) to manage infrastructure.
 - **kubectl**: Install [kubectl](https://kubernetes.io/docs/tasks/tools/) to interact with the Kubernetes cluster.
 - **Helm**: Install [Helm](https://helm.sh/docs/intro/install/) to manage Kubernetes applications.
+***OPTIONAL***
+- **ArgoCD CLI**: Install the ArgoCD command-line tool to manage ArgoCD from the terminal.
+  - [Installation Guide](https://argo-cd.readthedocs.io/en/stable/cli_installation/)
 
 ---
 
@@ -83,12 +86,26 @@ Execute the setup script to apply the Terraform configurations and install the A
 chmod +x create_eks_cluster.sh
 ./create_eks_cluster.sh
 ```
+This will install in us-east-1 region with the name terraform-eks-demo.
 
+If you would like to choose other name and region you can use 
+```bash
+CLUSTER_NAME=my-cluster AWS_REGION=us-west-2 ./create_eks_cluster.sh
+```
 This script will:
 
 1. Retrieve the OIDC provider ARN and create a trust policy for the IAM role used by the AWS Load Balancer Controller.
 2. Apply the Terraform configuration to set up the VPC, EKS cluster, node groups, and necessary IAM roles.
 3. Install the AWS Load Balancer Controller on the EKS cluster using Helm.
+
+
+To Connect to your cluster use the next command: 
+
+```bash
+aws eks update-kubeconfig --name terraform-eks-demo --region us-east-1
+```
+
+If you changed the name and region please dont forget to modify your command to fit your details.
 
 ---
 
@@ -165,14 +182,15 @@ To install and configure ArgoCD in the EKS cluster, follow these steps:
     kubectl get svc argocd-server -n argocd | awk '{print $4}'
     ```
 
-5. **Get the name of the ArgoCD server pod**:
+5. **Log in to ArgoCD with the CLI**:
     ```bash
-    kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2
+    argocd login "WEB_URL_FROM_STEP_4" --insecure
     ```
 
-6. **Log in to ArgoCD with the CLI**:
+6. **Get the name of the ArgoCD admin Password**:
     ```bash
-    argocd login "WEB_URL_THAT_GOT_EARLIER" --insecure
+    kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
+
     ```
 
     Use the web URL obtained in step 4 as the login address.
