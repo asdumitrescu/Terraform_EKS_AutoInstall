@@ -167,7 +167,7 @@ To install and configure ArgoCD in the EKS cluster, follow these steps:
     kubectl create namespace argocd
     ```
 
-2. **Install ArgoCD**:
+2. **Install ArgoCD in the cluster**:
     ```bash
     kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
     ```
@@ -177,29 +177,27 @@ To install and configure ArgoCD in the EKS cluster, follow these steps:
     kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
     ```
 
-4. **Get the ArgoCD web URL for login**:
-    ```bash
-    kubectl get svc argocd-server -n argocd | awk '{print $4}'
-    ```
-
-5. **Log in to ArgoCD with the CLI**:
-    ```bash
-    argocd login "WEB_URL_FROM_STEP_4" --insecure
-    ```
-
-6. **Get the name of the ArgoCD admin Password**:
+4. **Get ArgoCD web URL for login**:
+   ```bash
+   kubectl get svc argocd-server -n argocd | awk '{print $4}'
+   ```
+5. **Get the name of the ArgoCD admin Password**:
     ```bash
     kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
 
     ```
 
-    Use the web URL obtained in step 4 as the login address.
+6. **Log in to the ArgoCD UI**:
+    - **Username**: admin
+    - **Password**: The password obtained at step 5.
 
-7. **Log in to the ArgoCD UI**:
-    - **Username**: `admin`
-    - **Password**: The pod name obtained in step 5.
+7. **Log in to ArgoCD CLI**:
+```bash
+argocd login <load_balancer_dns_name_received_in_step_3> --username admin --password <password_obtained_in_step_3> --insecure
+```
 
 These steps will set up ArgoCD on your EKS cluster and allow access through both the web UI and the CLI.
+
 ---
 
 ## Cleanup
