@@ -201,12 +201,34 @@ These steps will set up ArgoCD on your EKS cluster and allow access through both
 ---
 
 ## Cleanup
-In case you applied ArgoCD into your cluster,
-before detroying the infrastructure created earlier
+#For Optional step ArgoCD: In case you applied ArgoCD into your cluster.#
+
+Before detroying the infrastructure created earlier
 you have to remove the load balancer of ArgoCD using the following command:
 ```bash
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "ClusterIP"}}'
 ```
+
+1. To be sure you clean up and no things are left behind i recommend manually cleanup. 
+
+##IF THERE ARE OTHER RESOURCES IN THE CLUSTER YOU BETTER CLEAN IT UP BEFORE DESTROY SO YOU HAVE NO ISSUES, AND THE DESTROY PROCESS WILL SUCCED WITHOUT ERRORS##
+
+```bash
+# Remove the load balancer controller
+helm uninstall aws-load-balancer-controller -n kube-system
+
+# Delete any load balancers created by the controller:
+kubectl get svc --all-namespaces | grep LoadBalancer
+
+# After you get the service name and the namespace from last step you can use it here:
+kubectl delete svc <service-name> -n <namespace>
+
+# Remove the subnet tags:
+for SUBNET_ID in $(aws ec2 describe-subnets --filters "Name=vpc-id,Values=<your-vpc-id>" --query "Subnets[*].SubnetId" --output text); do
+    aws ec2 delete-tags --resources $SUBNET_ID --tags Key=kubernetes.io/role/elb
+done
+
+
 
 To remove all deployed resources, run the following command:
 ```bash
