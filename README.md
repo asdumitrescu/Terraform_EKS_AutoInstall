@@ -230,7 +230,7 @@ done
 
 
 
-To remove all deployed resources, run the following command:
+#To remove all deployed resources, run the following command:
 terraform destroy -auto-approve
 
 ```
