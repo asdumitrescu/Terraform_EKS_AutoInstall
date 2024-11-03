@@ -201,7 +201,7 @@ These steps will set up ArgoCD on your EKS cluster and allow access through both
 ---
 
 ## Cleanup
-#For Optional step ArgoCD: In case you applied ArgoCD into your cluster.#
+**For Optional step ArgoCD: In case you applied ArgoCD into your cluster.**
 
 Before detroying the infrastructure created earlier
 you have to remove the load balancer of ArgoCD using the following command:
@@ -211,7 +211,7 @@ kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "ClusterIP"}}'
 
 1. To be sure you clean up and no things are left behind i recommend manually cleanup. 
 
-##IF THERE ARE OTHER RESOURCES IN THE CLUSTER YOU BETTER CLEAN IT UP BEFORE DESTROY SO YOU HAVE NO ISSUES, AND THE DESTROY PROCESS WILL SUCCED WITHOUT ERRORS##
+**IF THERE ARE OTHER RESOURCES IN THE CLUSTER YOU BETTER CLEAN IT UP BEFORE DESTROY SO YOU HAVE NO ISSUES, AND THE DESTROY PROCESS WILL SUCCED WITHOUT ERRORS**
 
 ```bash
 # Remove the load balancer controller
@@ -231,8 +231,10 @@ done
 
 
 To remove all deployed resources, run the following command:
+
 ```bash
 terraform destroy -auto-approve
+
 ```
 
 This will delete all resources created by the Terraform configuration, including the VPC, EKS cluster, node groups, and IAM roles.
