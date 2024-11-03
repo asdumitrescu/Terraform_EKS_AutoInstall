@@ -231,8 +231,6 @@ done
 
 
 To remove all deployed resources, run the following command:
-
-```bash
 terraform destroy -auto-approve
 
 ```
