@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Set variables
 CLUSTER_NAME="terraform-eks-demo"
 AWS_REGION="us-east-1"
@@ -12,7 +11,6 @@ terraform apply -auto-approve
 echo "Waiting for EKS cluster to become active..."
 MAX_RETRIES=30  # Maximum number of retries
 RETRY_INTERVAL=30  # Interval between retries in seconds
-
 for ((i=1; i<=MAX_RETRIES; i++)); do
   STATUS=$(aws eks describe-cluster --name $CLUSTER_NAME --region $AWS_REGION --query "cluster.status" --output text)
   if [ "$STATUS" == "ACTIVE" ]; then
@@ -31,9 +29,10 @@ fi
 
 # Step 3: Install AWS Load Balancer Controller using Helm
 echo "Installing AWS Load Balancer Controller using Helm..."
-
 # Retrieve the IAM role ARN from Terraform outputs
 ALB_CONTROLLER_ROLE_ARN=$(terraform output -raw alb_controller_role_arn)
+
+aws eks update-kubeconfig --name terraform-eks-demo --region us-east-1
 
 # Create Kubernetes namespace (if not already created)
 kubectl create namespace kube-system 2>/dev/null || true
@@ -62,23 +61,35 @@ helm upgrade -i aws-load-balancer-controller eks/aws-load-balancer-controller -n
 
 # Step 4: Tag subnets for load balancer auto-discovery
 echo "Tagging subnets for load balancer auto-discovery..."
-
-# Get the private subnet IDs from Terraform outputs (use private subnets as specified)
+# Get both public and private subnet IDs
+PUBLIC_SUBNET_IDS=$(terraform output -json public_subnet_ids | jq -r '.[]')
 PRIVATE_SUBNET_IDS=$(terraform output -json private_subnet_ids | jq -r '.[]')
 
-# Tag each private subnet
-for SUBNET_ID in $PRIVATE_SUBNET_IDS; do
-  echo "Tagging private subnet $SUBNET_ID"
-  aws ec2 create-tags --resources $SUBNET_ID --tags Key=kubernetes.io/role/internal-elb,Value=1
+# Tag public subnets
+echo "Tagging public subnets..."
+for SUBNET_ID in $PUBLIC_SUBNET_IDS; do
+  echo "Tagging public subnet $SUBNET_ID"
+  aws ec2 create-tags --resources $SUBNET_ID --tags \
+    Key=kubernetes.io/role/elb,Value=1 \
+    Key=kubernetes.io/cluster/${CLUSTER_NAME},Value=shared
 done
 
-# Step 1: Retrieve OIDC provider ARN
+# Tag private subnets
+echo "Tagging private subnets..."
+for SUBNET_ID in $PRIVATE_SUBNET_IDS; do
+  echo "Tagging private subnet $SUBNET_ID"
+  aws ec2 create-tags --resources $SUBNET_ID --tags \
+    Key=kubernetes.io/role/internal-elb,Value=1 \
+    Key=kubernetes.io/cluster/${CLUSTER_NAME},Value=shared
+done
+
+# Step 5: Retrieve OIDC provider ARN
 OIDC_ARN=$(aws eks describe-cluster --name $CLUSTER_NAME --region $AWS_REGION --query "cluster.identity.oidc.issuer" --output text | sed 's/^https:\/\///')
 
-# Step 2: Define the dynamic IAM role name
+# Step 6: Define the dynamic IAM role name
 ROLE_NAME="${CLUSTER_NAME}-alb-controller-role"
 
-# Step 3: Create the trust-policy.json file dynamically
+# Step 7: Create the trust-policy.json file dynamically
 cat <<EOF > trust-policy.json
 {
   "Version": "2012-10-17",
@@ -99,7 +110,20 @@ cat <<EOF > trust-policy.json
 }
 EOF
 
-# Step 4: Create or update the IAM role with this trust policy
+# Step 8: Create or update the IAM role with this trust policy
 aws iam create-role --role-name $ROLE_NAME --assume-role-policy-document file://trust-policy.json || \
 aws iam update-assume-role-policy --role-name $ROLE_NAME --policy-document file://trust-policy.json
 
+# Step 9: Verify subnet tagging
+echo "Verifying subnet tags..."
+echo "Public subnets:"
+for SUBNET_ID in $PUBLIC_SUBNET_IDS; do
+  echo "Tags for subnet $SUBNET_ID:"
+  aws ec2 describe-tags --filters "Name=resource-id,Values=$SUBNET_ID" --output table
+done
+
+echo "Private subnets:"
+for SUBNET_ID in $PRIVATE_SUBNET_IDS; do
+  echo "Tags for subnet $SUBNET_ID:"
+  aws ec2 describe-tags --filters "Name=resource-id,Values=$SUBNET_ID" --output table
+done

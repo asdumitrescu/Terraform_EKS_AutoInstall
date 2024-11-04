@@ -31,5 +31,4 @@ variable "tags" {
   }
 }
 
-# Add other variables as needed
 
