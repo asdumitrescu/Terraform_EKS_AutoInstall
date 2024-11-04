@@ -1,4 +1,4 @@
-
+### WORK IN PROGRESS ###
 ## Terraform EKS Setup with AWS Load Balancer Controller
 
 This repository provides a complete setup for deploying an Amazon EKS cluster with the AWS Load Balancer Controller using Terraform and Helm. The setup includes creating a Virtual Private Cloud (VPC) with public and private subnets, deploying the EKS cluster, and configuring IAM roles necessary for AWS Load Balancer Controller integration.
