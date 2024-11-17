@@ -162,75 +162,29 @@ The trust policy (`trust-policy.json`) is automatically generated with the corre
 
 To install and configure ArgoCD in the EKS cluster, follow these steps:
 
-1. **Create a separate namespace for ArgoCD**:
-    ```bash
-    kubectl create namespace argocd
-    ```
+1. ** Use the install_ArgoCD.sh to install ArgoCD into the cluster and login to ArgoCD CLI 
 
-2. **Install ArgoCD in the cluster**:
-    ```bash
-    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-    ```
-
-3. **Expose the ArgoCD service to the outside**:
-    ```bash
-    kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
-    ```
-
-4. **Get ArgoCD web URL for login**:
-   ```bash
-   kubectl get svc argocd-server -n argocd | awk '{print $4}'
-   ```
-5. **Get the name of the ArgoCD admin Password**:
-    ```bash
-    kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
-
-    ```
-
-6. **Log in to the ArgoCD UI**:
-    - **Username**: admin
-    - **Password**: The password obtained at step 5.
-
-7. **Log in to ArgoCD CLI**:
 ```bash
-argocd login <load_balancer_dns_name_received_in_step_4> --username admin --password <password_obtained_in_step_5> --insecure
+chmod +x install_ArgoCD.sh
+./install_ArgoCD.sh
 ```
-
 These steps will set up ArgoCD on your EKS cluster and allow access through both the web UI and the CLI.
 
 ---
 
-## Cleanup
-**For Optional step ArgoCD: In case you applied ArgoCD into your cluster.**
+## Cleanup ##
+**To Clean the Cluster navigate to the terraform eks main folder and run the next commands.**
 
 Before detroying the infrastructure created earlier
-you have to remove the load balancer of ArgoCD using the following command:
+you have to clean the cluster using the following command:
 ```bash
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "ClusterIP"}}'
+chmod +x clean-cluster.sh
+./clean-cluster.sh
 ```
-
-1. To be sure you clean up and no things are left behind i recommend manually cleanup. 
-
-**IF THERE ARE OTHER RESOURCES IN THE CLUSTER YOU BETTER CLEAN IT UP BEFORE DESTROY SO YOU HAVE NO ISSUES, AND THE DESTROY PROCESS WILL SUCCED WITHOUT ERRORS**
-
-```bash
-# Remove the load balancer controller
-helm uninstall aws-load-balancer-controller -n kube-system
-
-# Delete any load balancers created by the controller:
-kubectl get svc --all-namespaces | grep LoadBalancer
-
-# After you get the service name and the namespace from last step you can use it here:
-kubectl delete svc <service-name> -n <namespace>
-
-# Remove the subnet tags:
-for SUBNET_ID in $(aws ec2 describe-subnets --filters "Name=vpc-id,Values=<your-vpc-id>" --query "Subnets[*].SubnetId" --output text); do
-    aws ec2 delete-tags --resources $SUBNET_ID --tags Key=kubernetes.io/role/elb
-done
-
 
 
 #To remove all deployed resources, run the following command:
+```bash
 terraform destroy -auto-approve
 
 ```

@@ -34,8 +34,6 @@ ALB_CONTROLLER_ROLE_ARN=$(terraform output -raw alb_controller_role_arn)
 
 aws eks update-kubeconfig --name terraform-eks-demo --region us-east-1
 
-# Create Kubernetes namespace (if not already created)
-kubectl create namespace kube-system 2>/dev/null || true
 
 # Create Kubernetes service account with the IAM role annotation
 kubectl create serviceaccount aws-load-balancer-controller -n kube-system 2>/dev/null || true
@@ -127,3 +125,9 @@ for SUBNET_ID in $PRIVATE_SUBNET_IDS; do
   echo "Tags for subnet $SUBNET_ID:"
   aws ec2 describe-tags --filters "Name=resource-id,Values=$SUBNET_ID" --output table
 done
+
+
+
+
+
+

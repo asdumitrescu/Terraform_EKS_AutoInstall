@@ -31,4 +31,21 @@ variable "tags" {
   }
 }
 
+variable "desired_capacity" {
+  type        = number
+  description = "Desired number of worker nodes"
+  default     = 2
+}
+
+variable "max_capacity" {
+  type        = number
+  description = "Maximum number of worker nodes"
+  default     = 3
+}
+
+variable "min_capacity" {
+  type        = number
+  description = "Minimum number of worker nodes"
+  default     = 1
+}
 
